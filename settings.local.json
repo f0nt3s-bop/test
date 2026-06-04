@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(powershell -Command \"Select-String -Path 'index.html' -Pattern 'section-terrain|terrain-header|galerie-track|terrain-citation' | Select-Object LineNumber, Line\")"
-    ]
-  }
-}
