@@ -1,0 +1,712 @@
+/* ============================================================
+   A VIA DI I PASTORI — U Sentieru
+   Hi-fi · brut & outdoor · maquis + pierre + terre
+   ============================================================ */
+
+:root{
+  /* paper / stone */
+  --paper:      oklch(0.949 0.011 88);
+  --paper-2:    oklch(0.918 0.015 86);
+  --paper-3:    oklch(0.882 0.018 84);
+  /* maquis greens (ink + dark sections) */
+  --maquis:     oklch(0.305 0.045 155);
+  --maquis-2:   oklch(0.245 0.040 158);
+  --maquis-3:   oklch(0.185 0.034 160);
+  /* warm near-black ink */
+  --ink:        oklch(0.255 0.018 130);
+  --stone:      oklch(0.60 0.016 95);
+  --stone-2:    oklch(0.72 0.014 90);
+  /* terre / orange accent */
+  --terre:      oklch(0.585 0.128 47);
+  --terre-2:    oklch(0.50 0.115 44);
+  --terre-3:    oklch(0.70 0.105 58);
+
+  --line:       color-mix(in oklab, var(--ink) 16%, transparent);
+  --line-soft:  color-mix(in oklab, var(--ink) 9%, transparent);
+
+  --ff-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --ff-body:    "Archivo", system-ui, sans-serif;
+  --ff-mono:    "Space Mono", ui-monospace, monospace;
+  --ff-quote:   "Newsreader", Georgia, serif;
+
+  --maxw: 1180px;
+  --rail: 132px;
+  --ease: cubic-bezier(.22,.61,.36,1);
+
+  /* — design system additional tokens — */
+  --charbon:       oklch(0.155 0.014 135);
+  --sage:          #99b178;
+  --sage-pale:     #bccaa1;
+  --sand-line:     rgba(180,165,145,0.30);
+  --on-dark:       rgba(255,255,255,0.92);
+  --on-dark-soft:  rgba(255,255,255,0.72);
+  --on-dark-faint: rgba(255,255,255,0.45);
+  --on-dark-line:  rgba(255,255,255,0.10);
+  --strava:        #fc4c02;
+  --r-md:          8px;
+  --r-pill:        50px;
+  --shadow-rest:   0 2px 16px rgba(30,20,10,0.12);
+  --shadow-hover:  0 12px 36px rgba(30,20,10,0.16);
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--ff-body);
+  font-size:17px;
+  line-height:1.55;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img{ max-width:100%; display:block; }
+a{ color:inherit; }
+::selection{ background:var(--terre); color:var(--paper); }
+
+/* ---------- type primitives ---------- */
+.kicker{
+  font-family:var(--ff-mono);
+  font-size:11.5px;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--terre-2);
+  font-weight:400;
+}
+.kicker--pale{ color:color-mix(in oklab, var(--paper) 70%, var(--terre-3)); }
+.eyebrow{
+  font-family:var(--ff-mono);
+  font-size:12px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--stone);
+}
+h1,h2,h3{ font-family:var(--ff-display); font-weight:800; line-height:1.02; margin:0; letter-spacing:-.015em; }
+.display{
+  font-family:var(--ff-display);
+  font-weight:800;
+  letter-spacing:-.025em;
+  line-height:.96;
+}
+.quote{
+  font-family:var(--ff-quote);
+  font-style:italic;
+  font-weight:400;
+  line-height:1.25;
+}
+
+/* ---------- layout ---------- */
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 32px; }
+.section{ position:relative; }
+
+/* topo contour texture (procedural, drawn by JS into ::before svg) */
+.topo-bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; opacity:.5; }
+.topo-bg svg{ width:100%; height:100%; }
+.grain{
+  position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:60;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 32px;
+  transition:background .4s var(--ease), border-color .4s var(--ease), padding .3s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.nav.scrolled{
+  background:color-mix(in oklab, var(--paper) 86%, transparent);
+  backdrop-filter:blur(12px) saturate(1.2);
+  border-bottom:1px solid var(--line-soft);
+  padding:12px 32px;
+}
+.brand{ display:flex; align-items:center; gap:11px; text-decoration:none; }
+.brand-logo{
+  width:34px; height:34px; flex:none; border-radius:50%; object-fit:cover;
+  border:2px solid rgba(255,255,255,0.30); transition:border-color .25s;
+}
+.nav.scrolled .brand-logo{ border-color:var(--line); }
+.brand-name{
+  font-family:var(--ff-display); font-weight:800; font-size:18px;
+  letter-spacing:-.01em; color:var(--paper); white-space:nowrap;
+}
+.nav.scrolled .brand-name{ color:var(--ink); }
+.nav.scrolled .brand-mark{ color:var(--maquis); }
+.nav-links{ display:flex; align-items:center; gap:26px; }
+.nav-links a{
+  font-family:var(--ff-mono); font-size:12px; letter-spacing:.08em;
+  text-transform:uppercase; text-decoration:none;
+  color:color-mix(in oklab, var(--paper) 85%, transparent);
+  transition:color .2s;
+}
+.nav.scrolled .nav-links a{ color:var(--stone); }
+.nav-links a:hover{ color:var(--terre-3); }
+.nav.scrolled .nav-links a:hover{ color:var(--terre); }
+.nav-cta{
+  font-family:var(--ff-mono)!important; font-size:11.5px!important;
+  padding:9px 15px; border:1px solid currentColor; border-radius:2px;
+  color:var(--paper)!important;
+}
+.nav.scrolled .nav-cta{ color:var(--terre)!important; }
+.nav-cta:hover{ background:var(--terre); border-color:var(--terre); color:var(--paper)!important; }
+.btn-theme{
+  display:flex; align-items:center; justify-content:center;
+  width:34px; height:34px; padding:0; flex:none;
+  border:1px solid rgba(255,255,255,0.35); border-radius:3px;
+  background:transparent; cursor:pointer; color:var(--paper);
+  transition:background .2s, border-color .2s, color .2s;
+}
+.nav.scrolled .btn-theme{ border-color:var(--line); color:var(--ink); }
+.btn-theme:hover{ background:var(--terre); border-color:var(--terre); color:var(--paper)!important; }
+.btn-theme .icon-sun{ display:block; }
+.btn-theme .icon-moon{ display:none; }
+[data-theme="dark"] .btn-theme .icon-sun{ display:none; }
+[data-theme="dark"] .btn-theme .icon-moon{ display:block; }
+.nav-burger{ display:none; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:var(--ff-mono); font-size:13px; letter-spacing:.04em;
+  text-transform:uppercase; text-decoration:none; cursor:pointer;
+  padding:15px 24px; border-radius:2px; border:1px solid transparent;
+  transition:transform .15s var(--ease), background .2s, color .2s, border-color .2s;
+}
+.btn:hover{ transform:translateY(-2px); }
+.btn--terre{ background:var(--terre); color:var(--paper); }
+.btn--terre:hover{ background:var(--terre-2); }
+.btn--ghost{ background:transparent; border-color:color-mix(in oklab, var(--paper) 55%, transparent); color:var(--paper); }
+.btn--ghost:hover{ background:var(--paper); color:var(--maquis-2); border-color:var(--paper); }
+.btn--ink{ background:var(--maquis-2); color:var(--paper); }
+.btn--ink:hover{ background:var(--maquis-3); }
+.btn .arrow{ transition:transform .2s var(--ease); }
+.btn:hover .arrow{ transform:translateX(3px); }
+.btn--terre:hover .arrow.down,.btn:hover .arrow.down{ transform:translateY(3px); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{ position:relative; min-height:100svh; display:flex; flex-direction:column;
+  color:var(--paper); overflow:hidden; background:var(--maquis-3);
+  padding-top:max(90px, 13vh); }
+.hero-media{ position:absolute; inset:0; z-index:0; }
+.hero-media video,
+.hero-media img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.hero-scrim{ position:absolute; inset:0; z-index:1;
+  background:
+    linear-gradient(180deg, color-mix(in oklab,var(--maquis-3) 78%,transparent) 0%, transparent 30%, transparent 55%, color-mix(in oklab,var(--maquis-3) 92%,transparent) 100%),
+    linear-gradient(90deg, color-mix(in oklab,var(--maquis-3) 55%,transparent) 0%, transparent 60%);
+}
+.hero-topo{ position:absolute; inset:0; z-index:2; opacity:.65; pointer-events:none;
+  background:url('../assets/topo-contours-dark.svg') center/cover no-repeat; }
+.hero-inner{ position:relative; z-index:5; flex:1; display:flex; flex-direction:column;
+  justify-content:center; padding-bottom:40px; padding-top:20px; }
+.hero-badge{
+  position:absolute; top:104px; right:32px; z-index:6;
+  font-family:var(--ff-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--terre-3); border:1px solid color-mix(in oklab,var(--terre-3) 45%,transparent);
+  border-radius:2px; padding:7px 12px; display:flex; align-items:center; gap:8px;
+  background:color-mix(in oklab,var(--maquis-3) 30%,transparent); backdrop-filter:blur(4px);
+}
+.hero-badge b{ font-weight:700; color:var(--paper); }
+.hero h1{ font-size:clamp(58px, 11vw, 168px); letter-spacing:-.035em; margin:14px 0 0; }
+.hero h1 .corse{ font-family:var(--ff-quote); font-style:italic; font-weight:400; letter-spacing:-.01em; }
+.hero-sub{ max-width:none; font-size:clamp(18px,2vw,23px); line-height:1.45;
+  color:color-mix(in oklab,var(--paper) 90%, var(--stone-2)); margin:22px 0 0; max-width:560px; }
+.hero-cta{ display:flex; gap:14px; margin-top:32px; flex-wrap:wrap; }
+.hero-foot{ position:relative; z-index:5; display:flex; align-items:center;
+  justify-content:space-between; padding:16px 0; border-top:1px solid color-mix(in oklab,var(--paper) 22%,transparent); }
+.hero-foot .m{ font-family:var(--ff-mono); font-size:11.5px; letter-spacing:.12em;
+  text-transform:uppercase; color:color-mix(in oklab,var(--paper) 65%,transparent); }
+.scroll-cue{ display:flex; align-items:center; gap:10px; }
+.scroll-cue .dot{ width:7px; height:7px; border-radius:50%; background:var(--terre); animation:pulse 2s infinite; }
+@keyframes pulse{ 0%,100%{ opacity:.4; } 50%{ opacity:1; } }
+
+/* ============================================================
+   TRAIL SPINE  (left rail with étapes + altitude)
+   ============================================================ */
+.descent{ position:relative; }
+.descent-band{
+  background:var(--charbon); color:var(--on-dark-soft); text-align:center;
+  font-family:var(--ff-mono); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase;
+  padding:15px 20px; display:flex; align-items:center; justify-content:center; gap:14px;
+}
+.descent-band .ln{ flex:1; height:1px; background:rgba(255,255,255,0.18); max-width:120px; }
+
+.trail{ position:relative; }
+.trail-spine{ position:absolute; left:calc((100vw - var(--maxw))/2 + 32px + 23px); top:0; bottom:0; width:2px;
+  background:repeating-linear-gradient(color-mix(in oklab,var(--terre) 50%,transparent) 0 6px, transparent 6px 13px); z-index:1; }
+.trail-progress{ position:absolute; left:calc((100vw - var(--maxw))/2 + 32px + 23px); top:0; width:2px;
+  background:var(--terre); z-index:2; height:0; box-shadow:0 0 14px color-mix(in oklab,var(--terre) 70%,transparent); }
+.trail-hiker{ position:fixed; left:calc((100vw - var(--maxw))/2 + 32px + 16px); z-index:3;
+  width:16px; height:16px; border-radius:50%; background:var(--terre); border:3px solid var(--paper);
+  box-shadow:0 2px 8px rgba(0,0,0,.25); display:none; }
+
+/* a numbered étape */
+.etape{ position:relative; padding:84px 0 84px var(--rail); }
+.etape-mark{ position:absolute; left:-20px; top:88px; width:48px; height:48px; z-index:4;
+  display:grid; place-items:center; border-radius:50%;
+  background:var(--paper); border:2px solid var(--maquis); color:var(--maquis);
+  font-family:var(--ff-mono); font-size:14px; font-weight:700; }
+.etape-mark.terre{ background:var(--terre); border-color:var(--terre); color:var(--paper); }
+.etape-alt{ position:absolute; left:-20px; top:142px; width:48px; text-align:center;
+  font-family:var(--ff-mono); font-size:10px; letter-spacing:.04em; color:var(--stone); }
+.etape-head{ margin-bottom:34px; max-width:760px; }
+.etape-label{ font-family:var(--ff-mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--terre-2); margin-bottom:14px; }
+.etape h2{ font-size:clamp(34px,4.6vw,60px); letter-spacing:-.02em; }
+.etape-lead{ font-size:clamp(18px,1.7vw,21px); color:color-mix(in oklab,var(--ink) 78%,var(--paper));
+  max-width:620px; margin-top:18px; line-height:1.5; }
+
+/* ---------- info cards (Le Projet) ---------- */
+.cards-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.icard{ background:color-mix(in oklab,var(--paper-2) 70%, var(--paper)); border:1px solid var(--line-soft);
+  border-radius:4px; padding:28px 26px 30px; transition:transform .25s var(--ease), border-color .25s, box-shadow .25s; }
+.icard:hover{ transform:translateY(-4px); border-color:var(--line); box-shadow:0 18px 40px -28px rgba(40,40,30,.5); }
+.icard .n{ font-family:var(--ff-mono); font-size:12px; color:var(--terre-2); letter-spacing:.1em; }
+.icard h3{ font-size:24px; margin:16px 0 12px; font-weight:700; }
+.icard p{ margin:0; font-size:15.5px; color:color-mix(in oklab,var(--ink) 72%,var(--paper)); line-height:1.55; }
+
+/* ============================================================
+   ÉTAPE 02 — MAP
+   ============================================================ */
+.map-shell{ position:relative; border:1px solid var(--line); border-radius:5px; overflow:hidden;
+  background:radial-gradient(ellipse at 60% 40%, oklch(0.930 0.016 82), oklch(0.898 0.022 80) 70%, oklch(0.868 0.026 78));
+  aspect-ratio:16/8.4; }
+.map-canvas{ position:absolute; inset:0; }
+.map-canvas svg{ width:100%; height:100%; }
+.wp{ position:absolute; transform:translate(-50%,-50%); z-index:5; cursor:pointer; }
+.wp-dot{ width:16px; height:16px; border-radius:50%; background:var(--maquis); border:3px solid var(--paper);
+  box-shadow:0 2px 7px rgba(0,0,0,.3); transition:transform .2s var(--ease); }
+.wp.is-terre .wp-dot{ background:var(--terre); }
+.wp.is-blue .wp-dot{ background:oklch(0.55 0.10 240); }
+.wp:hover .wp-dot,.wp.active .wp-dot{ transform:scale(1.35); }
+.wp-pulse{ position:absolute; inset:-7px; border-radius:50%; border:1px solid var(--maquis); opacity:0; }
+.wp.active .wp-pulse{ animation:ring 1.6s infinite; }
+@keyframes ring{ 0%{ transform:scale(.6); opacity:.8; } 100%{ transform:scale(2.4); opacity:0; } }
+.wp-tag{ position:absolute; left:50%; top:22px; transform:translateX(-50%); white-space:nowrap;
+  font-family:var(--ff-mono); font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+  background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:3px 7px; color:var(--ink);
+  box-shadow:0 3px 10px -4px rgba(0,0,0,.3); }
+.map-meta{ position:absolute; left:18px; bottom:16px; z-index:6;
+  font-family:var(--ff-mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:color-mix(in oklab,var(--maquis) 70%,transparent); display:flex; align-items:center; gap:8px; }
+.map-scale{ position:absolute; right:18px; bottom:16px; z-index:6; font-family:var(--ff-mono);
+  font-size:10px; color:var(--maquis); display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.map-scale .bar{ width:60px; height:6px; border:1px solid var(--maquis); border-top:0; }
+
+/* waypoint detail panel */
+.map-detail{ display:grid; grid-template-columns:1fr; gap:0; margin-top:20px; border:1px solid var(--line);
+  border-radius:4px; overflow:hidden; background:var(--paper-2); }
+.wp-panel{ display:none; grid-template-columns:1.1fr 1fr; }
+.wp-panel.show{ display:grid; }
+.wp-panel-img{ overflow:hidden; min-height:230px; }
+.wp-panel-img img{ width:100%; height:100%; min-height:230px; object-fit:cover; display:block; }
+.wp-panel-body{ padding:30px 32px; }
+.wp-panel-body .idx{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--terre-2); }
+.wp-panel-body h3{ font-size:30px; margin:12px 0 14px; font-weight:700; }
+.wp-panel-body p{ margin:0 0 18px; color:color-mix(in oklab,var(--ink) 75%,var(--paper)); font-size:15.5px; }
+.wp-stats{ display:flex; gap:26px; }
+.wp-stats div span{ display:block; font-family:var(--ff-mono); font-size:10.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--stone); }
+.wp-stats div b{ font-family:var(--ff-display); font-size:22px; font-weight:700; }
+
+/* zone image secondaire dans le panneau waypoint */
+.wp-panel-thumb{
+  border-radius:4px; overflow:hidden; position:relative;
+  margin-top:14px; min-height:56px;
+  background:color-mix(in oklab, var(--ink) 4%, transparent);
+  border:1px dashed color-mix(in oklab, var(--ink) 16%, transparent);
+}
+.wp-panel-thumb::before{
+  content:'+ image'; position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--ff-mono); font-size:10px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--stone); opacity:.5; pointer-events:none;
+}
+.wp-panel-thumb:has(img)::before,.wp-panel-thumb:has(video)::before{ content:none; }
+.wp-panel-thumb img,.wp-panel-thumb video{
+  width:100%; min-height:56px; max-height:120px; object-fit:cover; display:block;
+}
+
+/* ============================================================
+   ÉTAPE 03 — ACTIVITIES (horizontal scroll)
+   ============================================================ */
+.h-scroll{ display:flex; gap:18px; overflow-x:auto; scroll-snap-type:x mandatory;
+  padding:6px 0 22px; margin-right:-32px; padding-right:32px;
+  scrollbar-width:thin; scrollbar-color:var(--terre) transparent; }
+.h-scroll::-webkit-scrollbar{ height:6px; }
+.h-scroll::-webkit-scrollbar-thumb{ background:var(--terre); border-radius:3px; }
+.h-scroll::-webkit-scrollbar-track{ background:var(--line-soft); }
+.act{ flex:0 0 300px; scroll-snap-align:start; }
+.act-img{ position:relative; border-radius:4px; overflow:hidden; }
+.act-img img{ width:100%; height:240px; object-fit:cover; display:block; }
+.act-tag{ position:absolute; top:12px; left:12px; font-family:var(--ff-mono); font-size:10px;
+  letter-spacing:.1em; text-transform:uppercase; background:color-mix(in oklab,var(--maquis-3) 72%,transparent);
+  color:var(--paper); padding:4px 8px; border-radius:2px; backdrop-filter:blur(3px); z-index:2; }
+.act h3{ font-size:21px; margin:16px 0 6px; font-weight:700; }
+.act p{ margin:0; font-size:14.5px; color:color-mix(in oklab,var(--ink) 70%,var(--paper)); }
+.h-hint{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--stone); display:flex; align-items:center; gap:8px; }
+
+/* ============================================================
+   ÉTAPE 04 — SECTION PHARE (dark, récit terrain)
+   ============================================================ */
+.phare{ background:var(--maquis-3); color:var(--paper); position:relative; overflow:hidden; }
+.phare .trail-spine{ background:repeating-linear-gradient(color-mix(in oklab,var(--paper) 18%,transparent) 0 6px, transparent 6px 13px); }
+.phare .etape-mark{ background:var(--maquis-3); border-color:var(--paper); color:var(--paper); }
+.phare .etape-mark.terre{ background:var(--terre); border-color:var(--terre); }
+.phare .etape-alt{ color:color-mix(in oklab,var(--paper) 55%,transparent); }
+.phare .etape-label{ color:var(--terre-3); }
+.phare .etape-lead{ color:color-mix(in oklab,var(--paper) 80%,transparent); }
+.phare-topo{ position:absolute; inset:0; opacity:.7; z-index:0; pointer-events:none;
+  background:url('../assets/topo-contours-dark.svg') center/cover no-repeat; }
+.phare .etape{ position:relative; z-index:2; }
+
+/* récit grid: timeline of moments */
+.recit{ display:grid; grid-template-columns:1.05fr 1fr; gap:20px; }
+.recit-cell{ border:1px solid color-mix(in oklab,var(--paper) 16%,transparent); border-radius:5px; overflow:hidden;
+  background:color-mix(in oklab,var(--paper) 4%,transparent); }
+.recit-cell.media{ position:relative; min-height:300px; }
+.recit-cell.media video,
+.recit-cell.media img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.recit-play{ position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.recit-play .pl{ width:74px; height:74px; border-radius:50%; background:color-mix(in oklab,var(--terre) 92%,transparent);
+  display:grid; place-items:center; box-shadow:0 10px 30px -8px rgba(0,0,0,.5); }
+.recit-play .pl svg{ width:26px; height:26px; margin-left:4px; }
+.recit-time{ position:absolute; top:14px; left:14px; z-index:4; font-family:var(--ff-mono); font-size:11px;
+  letter-spacing:.08em; text-transform:uppercase; background:color-mix(in oklab,var(--maquis-3) 70%,transparent);
+  padding:5px 9px; border-radius:2px; color:var(--terre-3); backdrop-filter:blur(4px); }
+.recit-txt{ padding:30px 30px 32px; }
+.recit-txt .t{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--terre-3); }
+.recit-txt h3{ font-size:25px; margin:13px 0 14px; font-weight:700; }
+.recit-txt p{ margin:0; color:color-mix(in oklab,var(--paper) 78%,transparent); font-size:15.5px; line-height:1.6; }
+
+.phare-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:30px; }
+.pstat{ border:1px solid color-mix(in oklab,var(--paper) 16%,transparent); border-radius:5px; padding:24px 22px; }
+.pstat b{ font-family:var(--ff-display); font-size:clamp(36px,4vw,52px); font-weight:800; display:block; line-height:1;
+  color:var(--terre-3); }
+.pstat span{ font-family:var(--ff-mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:color-mix(in oklab,var(--paper) 62%,transparent); margin-top:10px; display:block; }
+.phare-quote{ text-align:center; padding:64px 20px 8px; }
+.phare-quote .q{ font-family:var(--ff-quote); font-style:italic; font-size:clamp(30px,4.2vw,52px); line-height:1.18;
+  max-width:880px; margin:0 auto; color:var(--paper); }
+.phare-quote .q .mark{ color:var(--terre-3); }
+.phare-quote .src{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:color-mix(in oklab,var(--paper) 55%,transparent); margin-top:24px; }
+
+/* terrain gallery in phare */
+.terrain-gallery{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:28px; }
+/* galerie : items cliquables */
+.gal-item{ position:relative; cursor:pointer; overflow:hidden; border-radius:3px;
+  border:1px solid color-mix(in oklab,var(--paper) 12%,transparent); }
+.gal-item img,.gal-item video{ width:100%; height:180px; object-fit:cover; display:block;
+  transition:transform .4s var(--ease); }
+.gal-item:hover img,.gal-item:hover video{ transform:scale(1.06); }
+.gal-zoom{ position:absolute; top:8px; right:8px; z-index:2;
+  width:26px; height:26px; border-radius:3px;
+  background:rgba(8,12,5,0.65); backdrop-filter:blur(4px);
+  color:#fff; font-size:13px; display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity .2s; pointer-events:none; line-height:1; }
+.gal-item:hover .gal-zoom{ opacity:1; }
+/* lightbox */
+.lightbox{
+  position:fixed; inset:0; z-index:200;
+  background:rgba(5,8,4,0.97); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .3s ease;
+}
+.lightbox.show{ opacity:1; pointer-events:auto; }
+.lightbox-close{
+  position:absolute; top:18px; right:20px; z-index:201;
+  width:40px; height:40px; border-radius:50%;
+  background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.20);
+  color:#fff; font-size:24px; cursor:pointer; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s;
+}
+.lightbox-close:hover{ background:rgba(255,255,255,0.22); }
+.lightbox-media img,.lightbox-media video{
+  max-width:92vw; max-height:88vh; border-radius:5px; display:block;
+  box-shadow:0 24px 80px rgba(0,0,0,0.7);
+}
+
+/* ============================================================
+   ÉCO + ÉQUIPE
+   ============================================================ */
+.eco-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.eco{ display:flex; gap:14px; align-items:flex-start; padding:22px 20px; border:1px solid var(--line-soft);
+  border-radius:4px; background:color-mix(in oklab,var(--paper-2) 55%,var(--paper)); }
+.eco .ic{ flex:none; width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
+  background:color-mix(in oklab,var(--maquis) 12%,transparent); color:var(--maquis); }
+.eco .ic svg{ width:18px; height:18px; }
+.eco h4{ margin:2px 0 5px; font-family:var(--ff-display); font-size:17px; font-weight:700; }
+.eco p{ margin:0; font-size:13.5px; color:color-mix(in oklab,var(--ink) 68%,var(--paper)); line-height:1.5; }
+
+.team-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.member{
+  text-align:center; display:flex; flex-direction:column; align-items:center; gap:9px;
+  background:var(--paper); border:1px solid var(--sand-line); border-radius:var(--r-md);
+  padding:28px 16px 22px; box-shadow:var(--shadow-rest);
+  transition:transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+.member:hover{ transform:translateY(-4px); box-shadow:var(--shadow-hover); }
+.member-img{ width:104px; height:104px; border-radius:50%; overflow:hidden;
+  border:3px solid var(--line-soft); background:var(--paper-2); flex:none; }
+.member-img img{ width:100%; height:100%; object-fit:cover; display:block; }
+.member h4{ font-family:var(--ff-display); font-size:18px; font-weight:700; margin:4px 0 0; color:var(--maquis); }
+.member .role{ font-family:var(--ff-mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--stone); }
+.member .strava{ display:inline-flex; align-items:center; gap:7px; margin-top:auto; padding-top:8px; text-decoration:none;
+  font-family:var(--ff-mono); font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--paper); background:var(--strava); border-radius:var(--r-pill); padding:6px 14px;
+  transition:background .18s, transform .18s; }
+.member .strava:hover{ background:#d93d00; transform:translateY(-2px); }
+
+/* ============================================================
+   RÉSERVATION
+   ============================================================ */
+.resa{ background:var(--paper-2); }
+.resa-card{ background:var(--paper); border:1px solid var(--line); border-radius:6px;
+  padding:40px; box-shadow:0 30px 70px -50px rgba(40,40,30,.6); }
+.form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:22px 26px; }
+.field{ display:flex; flex-direction:column; gap:8px; }
+.field.full{ grid-column:1/-1; }
+.field label{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--stone); }
+.field input,.field textarea{ font-family:var(--ff-body); font-size:15px; color:var(--ink);
+  background:var(--paper-2); border:1px solid var(--line); border-radius:3px; padding:13px 14px; width:100%;
+  transition:border-color .2s, background .2s; }
+.field input:focus,.field textarea:focus{ outline:none; border-color:var(--terre); background:var(--paper); }
+.field textarea{ resize:vertical; min-height:96px; }
+.seg{ display:flex; gap:8px; }
+.seg button{ flex:1; font-family:var(--ff-mono); font-size:12px; letter-spacing:.05em; text-transform:uppercase;
+  padding:12px 8px; border:1px solid var(--line); border-radius:3px; background:var(--paper-2); color:var(--stone);
+  cursor:pointer; transition:all .18s; }
+.seg button.active{ background:var(--maquis); border-color:var(--maquis); color:var(--paper); }
+.stepper{ display:flex; align-items:center; gap:0; border:1px solid var(--line); border-radius:3px; overflow:hidden; width:fit-content; }
+.stepper button{ width:46px; height:48px; border:none; background:var(--paper-2); color:var(--maquis); font-size:20px; cursor:pointer; }
+.stepper button:hover{ background:var(--paper-3); }
+.stepper .val{ width:62px; text-align:center; font-family:var(--ff-mono); font-size:16px; }
+.resa-foot{ display:flex; align-items:center; justify-content:space-between; margin-top:30px; flex-wrap:wrap; gap:16px; }
+.resa-foot .meta{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--stone);
+  display:flex; align-items:center; gap:10px; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.foot{ background:var(--maquis-3); color:var(--paper); padding:70px 0 36px; position:relative; overflow:hidden; }
+.foot-topo{ position:absolute; inset:0; opacity:.55; pointer-events:none;
+  background:url('../assets/topo-contours-dark.svg') center/cover no-repeat; }
+.foot-top{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px; position:relative; z-index:2; }
+.foot-brand .brand-name{ color:var(--paper); font-size:24px; }
+.foot-brand p{ color:color-mix(in oklab,var(--paper) 62%,transparent); font-size:14px; max-width:300px; margin:16px 0 0; }
+.foot-col h5{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--terre-3); margin:0 0 16px; font-weight:400; }
+.foot-col a{ display:block; text-decoration:none; color:color-mix(in oklab,var(--paper) 80%,transparent);
+  font-size:14.5px; padding:5px 0; transition:color .2s; }
+.foot-col a:hover{ color:var(--terre-3); }
+.foot-bottom{ display:flex; justify-content:space-between; align-items:center; margin-top:54px; padding-top:24px;
+  border-top:1px solid color-mix(in oklab,var(--paper) 16%,transparent); position:relative; z-index:2; flex-wrap:wrap; gap:12px; }
+.foot-bottom span{ font-family:var(--ff-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+  color:color-mix(in oklab,var(--paper) 50%,transparent); }
+
+/* ============================================================
+   ALTIMETER RAIL (fixed right instrument)
+   ============================================================ */
+.altimetre{
+  position:fixed; right:18px; top:50%; transform:translateY(-50%); z-index:60;
+  display:flex; flex-direction:column; align-items:center; gap:7px;
+  opacity:0; transition:opacity .4s ease; pointer-events:none;
+  background:rgba(8,12,5,0.62); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.12); border-radius:24px; padding:12px 9px 10px;
+}
+.altimetre.show{ opacity:1; }
+.alt-top{ font-family:var(--ff-mono); font-size:9px; letter-spacing:.06em; color:rgba(255,255,255,0.65); }
+.alt-piste{ width:4px; height:130px; background:rgba(255,255,255,0.14); border-radius:3px; position:relative; }
+.alt-fill{
+  position:absolute; top:0; left:0; right:0; height:0%;
+  background:linear-gradient(180deg,#c8c460,var(--maquis)); border-radius:3px;
+  transition:height .3s ease;
+}
+.alt-mark{
+  position:absolute; left:50%; top:0%; transform:translate(-50%,-50%);
+  width:11px; height:11px; background:#fff; border:2px solid var(--maquis); border-radius:50%;
+  box-shadow:0 0 0 3px rgba(45,74,30,0.28); transition:top .3s ease;
+}
+.alt-val{ font-family:var(--ff-mono); font-size:9px; font-weight:700; color:rgba(255,255,255,0.86); }
+@media (max-width:720px){ .altimetre{ display:none; } }
+
+/* reveal on scroll */
+.reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s var(--ease), transform .7s var(--ease); }
+.reveal.in{ opacity:1; transform:none; }
+
+/* ============================================================
+   BACK TO TOP (fixed bottom-left)
+   ============================================================ */
+.btn-top{
+  position:fixed; bottom:24px; left:24px; z-index:55;
+  width:44px; height:44px; border-radius:50%;
+  border:2px solid var(--line); background:var(--paper);
+  color:var(--maquis-2); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(10px); pointer-events:none;
+  transition:opacity .3s var(--ease), transform .3s var(--ease), background .2s, border-color .2s;
+  box-shadow:var(--shadow-rest);
+}
+.btn-top.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+.btn-top:hover{ background:var(--maquis-2); border-color:var(--maquis-2); color:var(--paper); }
+
+/* ============================================================
+   DARK MODE
+   ============================================================ */
+[data-theme="dark"]{
+  --paper:     oklch(0.185 0.034 160);
+  --paper-2:   oklch(0.220 0.038 158);
+  --paper-3:   oklch(0.258 0.040 156);
+  --ink:       oklch(0.920 0.008 90);
+  --stone:     oklch(0.660 0.010 95);
+  --stone-2:   oklch(0.560 0.012 95);
+  --line:      color-mix(in oklab, var(--ink) 13%, transparent);
+  --line-soft: color-mix(in oklab, var(--ink) 7%, transparent);
+}
+/* ---- Héro : textes utilisant --paper comme "blanc" → cassés en dark ---- */
+[data-theme="dark"] .kicker--pale{ color:var(--terre-3); }
+[data-theme="dark"] .hero-sub{ color:var(--on-dark-soft); }
+[data-theme="dark"] .hero-foot .m,
+[data-theme="dark"] .scroll-cue{ color:var(--on-dark-faint); }
+[data-theme="dark"] .btn--ghost{ color:var(--on-dark); border-color:rgba(255,255,255,0.35); }
+[data-theme="dark"] .btn--ghost:hover{ background:rgba(255,255,255,0.10); color:var(--on-dark); border-color:rgba(255,255,255,0.5); }
+/* ---- Section phare (déjà sombre) : paper → dark = invisible ---- */
+[data-theme="dark"] .phare .etape-lead,
+[data-theme="dark"] .recit-txt p{ color:var(--on-dark-soft); }
+[data-theme="dark"] .phare-quote .q{ color:var(--on-dark); }
+[data-theme="dark"] .phare-quote .src{ color:var(--on-dark-faint); }
+[data-theme="dark"] .phare .etape-mark:not(.terre){ border-color:var(--on-dark-line); color:var(--on-dark-soft); }
+[data-theme="dark"] .phare .etape-alt{ color:var(--on-dark-faint); }
+[data-theme="dark"] .phare-stats .pstat span{ color:var(--on-dark-faint); }
+/* ---- Footer (déjà sombre) ---- */
+[data-theme="dark"] .foot-brand .brand-name{ color:var(--on-dark); }
+[data-theme="dark"] .foot-brand p,
+[data-theme="dark"] .foot-col a{ color:var(--on-dark-faint); }
+[data-theme="dark"] .foot-col a:hover{ color:var(--on-dark); }
+[data-theme="dark"] .foot-bottom span{ color:var(--on-dark-faint); }
+/* ---- Cartes membres / info / éco ---- */
+[data-theme="dark"] .member h4{ color:var(--ink); }
+[data-theme="dark"] .icard h3{ color:var(--ink); }
+[data-theme="dark"] .eco h4{ color:var(--ink); }
+[data-theme="dark"] .member .strava{ color:#fff; }
+[data-theme="dark"] .member,
+[data-theme="dark"] .icard,
+[data-theme="dark"] .eco{ border-color:var(--line); }
+/* ---- Carte (map) ---- */
+[data-theme="dark"] .map-shell{
+  background:radial-gradient(ellipse at 60% 40%, oklch(0.268 0.030 155), oklch(0.228 0.025 158) 70%, oklch(0.198 0.020 160));
+}
+[data-theme="dark"] .map-meta,
+[data-theme="dark"] .map-scale{ color:var(--on-dark-faint); }
+[data-theme="dark"] .wp-dot{ border-color:var(--paper-2); }
+/* ---- Réservation ---- */
+[data-theme="dark"] .seg button.active{ background:var(--terre); border-color:var(--terre); color:#fff; }
+[data-theme="dark"] .stepper button{ color:var(--ink); }
+/* ---- Bouton retour en haut ---- */
+[data-theme="dark"] .btn-top{ background:var(--paper-2); color:var(--ink); border-color:var(--line); }
+[data-theme="dark"] .btn-top:hover{ background:var(--maquis-2); border-color:var(--maquis-2); color:var(--on-dark); }
+
+/* ---- Nav (non scrollée) : texte sur fond hero sombre ---- */
+[data-theme="dark"] .nav:not(.scrolled) .brand-name{ color:var(--on-dark); }
+[data-theme="dark"] .nav:not(.scrolled) .nav-links a{ color:var(--on-dark-soft); }
+[data-theme="dark"] .nav:not(.scrolled) .nav-links a:hover{ color:var(--terre-3); }
+[data-theme="dark"] .nav:not(.scrolled) .nav-cta{ color:var(--terre-3)!important; }
+[data-theme="dark"] .nav:not(.scrolled) .btn-theme{ color:var(--on-dark); border-color:rgba(255,255,255,0.30); }
+
+/* ---- Étiquettes / labels : terre-2 trop sombre → terre-3 ---- */
+[data-theme="dark"] .etape-label{ color:var(--terre-3); }
+[data-theme="dark"] .icard .n{ color:var(--terre-3); }
+[data-theme="dark"] .wp-panel-body .idx{ color:var(--terre-3); }
+[data-theme="dark"] .recit-txt .t{ color:var(--terre-3); }
+
+/* ---- Textes secondaires dans les cartes ---- */
+[data-theme="dark"] .icard p{ color:var(--on-dark-soft); }
+[data-theme="dark"] .eco p{ color:var(--on-dark-soft); }
+[data-theme="dark"] .act p{ color:var(--on-dark-soft); }
+[data-theme="dark"] .act h3{ color:var(--ink); }
+
+/* ---- Activités : act-tag sur fond sombre ---- */
+[data-theme="dark"] .act-tag{ color:var(--on-dark); }
+
+/* ---- Section phare : bordures des cellules récit + stats ---- */
+[data-theme="dark"] .recit-cell{ border-color:var(--on-dark-line); }
+[data-theme="dark"] .pstat{ border-color:var(--on-dark-line); }
+[data-theme="dark"] .phare h2{ color:var(--on-dark)!important; }
+
+/* ---- Galerie : bordures visibles ---- */
+[data-theme="dark"] .gal-item{ border-color:var(--on-dark-line); }
+
+/* ---- Zone image waypoint ---- */
+[data-theme="dark"] .wp-panel-thumb{
+  background:color-mix(in oklab, var(--on-dark) 5%, transparent);
+  border-color:color-mix(in oklab, var(--on-dark) 18%, transparent);
+}
+
+/* ---- Wp-panel-body : stats labels ---- */
+[data-theme="dark"] .wp-stats div span{ color:var(--on-dark-faint); }
+[data-theme="dark"] .wp-stats div b{ color:var(--ink); }
+
+/* ---- Numéros d'étape (cercles) : maquis illisible sur fond sombre ---- */
+[data-theme="dark"] .etape-mark:not(.terre){
+  background:var(--paper-2);
+  border-color:color-mix(in oklab, var(--ink) 40%, transparent);
+  color:var(--ink);
+}
+
+/* ---- Burger mobile (non scrollé) ---- */
+[data-theme="dark"] .nav:not(.scrolled) .nav-burger{ color:var(--on-dark); }
+
+/* ---- Trail hiker : bordure sur fond sombre ---- */
+[data-theme="dark"] .trail-hiker{ border-color:var(--paper-2); }
+
+/* ---- Map detail panel ---- */
+[data-theme="dark"] .map-detail{ border-color:var(--line); background:var(--paper-2); }
+[data-theme="dark"] .wp-panel-body p{ color:var(--on-dark-soft); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:980px){
+  .cards-3{ grid-template-columns:1fr; }
+  .wp-panel.show{ grid-template-columns:1fr; }
+  .recit{ grid-template-columns:1fr; }
+  .phare-stats{ grid-template-columns:repeat(2,1fr); }
+  .eco-grid{ grid-template-columns:1fr 1fr; }
+  .team-grid{ grid-template-columns:1fr 1fr; }
+  .foot-top{ grid-template-columns:1fr 1fr; }
+  .terrain-gallery{ grid-template-columns:repeat(2,1fr); }
+  .gal-item img,.gal-item video{ height:160px; }
+}
+@media (max-width:720px){
+  :root{ --rail:0px; }
+  .wrap{ padding:0 20px; }
+  .nav{ padding:14px 20px; }
+  .nav-links{ display:none; }
+  .nav-burger{ display:grid; place-items:center; width:42px; height:42px; border:1px solid currentColor;
+    border-radius:3px; background:transparent; color:var(--paper); cursor:pointer; }
+  .nav.scrolled .nav-burger{ color:var(--ink); }
+  .trail-spine,.trail-progress,.trail-hiker{ display:none!important; }
+  .etape{ padding-left:0; padding-top:56px; padding-bottom:56px; }
+  .etape-mark{ position:static; margin-bottom:18px; }
+  .etape-alt{ display:none; }
+  .hero-badge{ top:84px; right:20px; }
+  .form-grid{ grid-template-columns:1fr; }
+  .phare-stats{ grid-template-columns:1fr 1fr; }
+  .eco-grid,.team-grid{ grid-template-columns:1fr; }
+  .foot-top{ grid-template-columns:1fr; }
+  .resa-card{ padding:26px 22px; }
+  .terrain-gallery{ grid-template-columns:1fr 1fr; }
+}
